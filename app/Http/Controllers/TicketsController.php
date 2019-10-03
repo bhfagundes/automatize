@@ -59,6 +59,7 @@ class TicketsController extends AppBaseController
     public function store(Request $request)
     {
         $path = $request->file('excel')->getRealPath();
+        
         $data=Excel::import(new TicketsImport, $path);
         /*dd($data);
         $tickets = $this->ticketsRepository->create($input);
