@@ -34,7 +34,6 @@ class TicketsController extends AppBaseController
     public function index(Request $request)
     {
         $tickets = $this->ticketsRepository->all();
-      
         return view('tickets.index')
             ->with('tickets', $tickets);
     }
@@ -153,7 +152,6 @@ class TicketsController extends AppBaseController
 
             return redirect(route('tickets.index'));
         }
-
         $this->ticketsRepository->delete($id);
 
         Flash::success('Tickets deleted successfully.');

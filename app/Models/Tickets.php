@@ -24,7 +24,7 @@ class Tickets extends Model
 {
 
     public $table = 'tickets';
-    
+    protected $primaryKey = "ID";
     public $timestamps = false;
 
 
