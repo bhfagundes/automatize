@@ -2,7 +2,8 @@
     <table class="table" id="tickets-table">
         <thead>
             <tr>
-                <th>Number</th>
+        <th>ID</th>
+        <th>Number</th>
         <th>Res Date</th>
         <th>Priority</th>
         <th>Cr Date</th>
@@ -18,6 +19,7 @@
         <tbody>
         @foreach($tickets as $tickets)
             <tr>
+            <td> {!! $tickets->ID !!}
                 <td>{!! $tickets->NUMBER !!}</td>
             <td>{!! $tickets->RES_DATE !!}</td>
             <td>{!! $tickets->PRIORITY !!}</td>
@@ -29,10 +31,10 @@
             <td>{!! $tickets->CL_CODE !!}</td>
             <td>{!! $tickets->CL_DATE !!}</td>
                 <td>
-                    {!! Form::open(['route' => ['tickets.destroy', $tickets->id], 'method' => 'delete']) !!}
+                    {!! Form::open(['route' => ['tickets.destroy', $tickets->ID], 'method' => 'delete']) !!}
                     <div class='btn-group'>
-                        <a href="{!! route('tickets.show', [$tickets->id]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-eye-open"></i></a>
-                        <a href="{!! route('tickets.edit', [$tickets->id]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-edit"></i></a>
+                        <a href="{!! route('tickets.show', [$tickets->ID]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-eye-open"></i></a>
+                        <a href="{!! route('tickets.edit', [$tickets->ID]) !!}" class='btn btn-default btn-xs'><i class="glyphicon glyphicon-edit"></i></a>
                         {!! Form::button('<i class="glyphicon glyphicon-trash"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
                     </div>
                     {!! Form::close() !!}

@@ -34,7 +34,7 @@ class TicketsController extends AppBaseController
     public function index(Request $request)
     {
         $tickets = $this->ticketsRepository->all();
-
+      
         return view('tickets.index')
             ->with('tickets', $tickets);
     }
@@ -145,6 +145,7 @@ class TicketsController extends AppBaseController
      */
     public function destroy($id)
     {
+        
         $tickets = $this->ticketsRepository->find($id);
 
         if (empty($tickets)) {
