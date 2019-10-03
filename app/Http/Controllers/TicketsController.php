@@ -142,6 +142,11 @@ class TicketsController extends AppBaseController
      *
      * @return Response
      */
+    public function massiveDelete()
+    {
+       Tickets::truncate();
+        return redirect(route('tickets.index'));
+    }
     public function destroy($id)
     {
         
