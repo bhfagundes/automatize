@@ -21,7 +21,8 @@
         "maatwebsite/excel": "^3.1",
         "yajra/laravel-datatables-buttons": "^4.6",
         "yajra/laravel-datatables-html": "^4.4",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "yajra/laravel-datatables-oracle": "~9.0",
+        "khill/lavacharts" : "3.1.*" 
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",

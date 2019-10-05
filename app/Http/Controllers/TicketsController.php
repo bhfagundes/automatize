@@ -12,7 +12,8 @@ use Response;
 use App\Models\Tickets;
 use App\Imports\TicketsImport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Khill\Lavacharts\Lavacharts;
+use App\Models\CountryUser;
 
 class TicketsController extends AppBaseController
 {
@@ -31,11 +32,132 @@ class TicketsController extends AppBaseController
      *
      * @return Response
      */
+    public function geoChart()
+    {
+        $lava = new Lavacharts; // See note below for Laravel
+
+
+		$popularity = $lava->DataTable();
+
+		$data = CountryUser::select("name as 0","total_users as 1")->get()->toArray();
+
+
+		$popularity->addStringColumn('Country')
+
+		           ->addNumberColumn('Popularity')
+
+		           ->addRows($data);
+
+
+        $lava->GeoChart('Popularity', $popularity);
+        ##passar variavel lava como parametro
+        /* na view usamos : 
+            <div id="pop-div" style="width:800px;border:1px solid black"></div>
+
+           <?= $lava->render('GeoChart', 'Popularity', 'pop-div') ?>
+        */
+        return ;
+    }
+    public function pieChart()
+    {
+        $lava = new Lavacharts;
+
+        $reasons = $lava->DataTable();
+
+        $reasons->addStringColumn('Reasons')
+                ->addNumberColumn('Percent')
+                ->addRow(array('Check Reviews', 5))
+                ->addRow(array('Watch Trailers', 2))
+                ->addRow(array('See Actors Other Work', 4))
+                ->addRow(array('Settle Argument', 89));
+
+
+        $donutchart = $lava->DonutChart('IMDB', $reasons, [
+                        'title' => 'Reasons I visit IMDB'
+                    ]);
+        ##passar variavel lava como parametro
+        ##na view usamos
+        /*
+               <div id="chart-div"></div>
+      {!! $lava->render('DonutChart', 'IMDB', 'chart-div') !!}
+
+        */
+    }
+    public function lineChart()
+    {
+        $data = \Lava::DataTable();
+        $data->addDateColumn('Day of Month')
+                    ->addNumberColumn('Projected')
+                    ->addNumberColumn('Official');
+
+        // Random Data For Example
+        for ($a = 1; $a < 30; $a++)
+        {
+            $rowData = [
+            "2014-8-$a", rand(800,1000), rand(800,1000)
+            ];
+
+            $data->addRow($rowData);
+        }
+
+        \Lava::LineChart('Stocks', $data, [
+        'title' => 'Stock Market Trends'
+        ]);
+        /* 
+            na view:
+            <div id="stocks-div"></div>
+            @linechart('Stocks', 'stocks-div')
+
+        */
+    }
+    public function columnChart()
+    {
+        $data = \Lava::DataTable();
+        $data->addDateColumn('Day of Month')
+                    ->addNumberColumn('Projected')
+                    ->addNumberColumn('Official');
+
+        // Random Data For Example
+        for ($a = 1; $a < 30; $a++)
+        {
+            $rowData = [
+            "2014-8-$a", rand(800,1000), rand(800,1000)
+            ];
+
+            $data->addRow($rowData);
+        }
+
+        \Lava::ColumnChart('Stocks', $data, [
+        'title' => 'Stock Market Trends'
+        ]);
+        ## na view
+        /*  @columnchart('Stocks', 'stocks-div')
+        Para todos os tipos podemos ver
+        http://lavacharts.com/api/3.0/Khill/Lavacharts/Charts/ColumnChart.html
+        */
+    }
     public function index(Request $request)
     {
+        $data = \Lava::DataTable();
+        $data->addDateColumn('Day of Month')
+                    ->addNumberColumn('Projected')
+                    ->addNumberColumn('Official');
+
+        // Random Data For Example
+        for ($a = 1; $a < 30; $a++)
+        {
+            $rowData = [
+            "2014-8-$a", rand(800,1000), rand(800,1000)
+            ];
+
+            $data->addRow($rowData);
+        }
+
+        \Lava::ComboChart('Stocks', $data, [
+        'title' => 'Stock Market Trends'
+        ]);
         $tickets = $this->ticketsRepository->all();
-        return view('tickets.index')
-            ->with('tickets', $tickets);
+        return view('tickets.index',compact('tickets','lava'));
     }
 
     /**
@@ -58,8 +180,7 @@ class TicketsController extends AppBaseController
     public function store(Request $request)
     {
         $path = $request->file('excel')->getRealPath();
-        
-        $data=Excel::import(new TicketsImport, $path);
+        $data=Excel::import(new TicketsImport, $request->file('excel'));
         /*dd($data);
         $tickets = $this->ticketsRepository->create($input);
 
