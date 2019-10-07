@@ -12,10 +12,7 @@
     </section>
     <div class="content">
         <div class="clearfix"></div>
-        <div id="stocks-div"></div>
-            @combochart('Stocks', 'stocks-div')
-
-
+        
         <div class="clearfix"></div>
         <div class="box box-primary">
             <div class="box-body">
