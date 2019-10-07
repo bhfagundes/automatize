@@ -157,7 +157,7 @@ class TicketsController extends AppBaseController
         'title' => 'Stock Market Trends'
         ]);
         $tickets = $this->ticketsRepository->all();
-        return view('tickets.index',compact('tickets','lava'));
+        return view('tickets.index',compact('tickets'));
     }
 
     /**
