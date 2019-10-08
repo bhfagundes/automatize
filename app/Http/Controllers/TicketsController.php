@@ -153,11 +153,11 @@ class TicketsController extends AppBaseController
             $data->addRow($rowData);
         }
 
-        \Lava::ComboChart('Stocks', $data, [
+        \Lava::LineChart('Stocks', $data, [
         'title' => 'Stock Market Trends'
         ]);
         $tickets = $this->ticketsRepository->all();
-        return view('tickets.index',compact('tickets'));
+        return view('tickets.index',compact('tickets','data'));
     }
 
     /**

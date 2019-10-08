@@ -6,8 +6,9 @@ use App\Models\Tickets;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class TicketsImport implements ToModel,WithChunkReading
+class TicketsImport implements ToModel,WithChunkReading, WithHeadingRow
 {
     /**
     * @param array $row
@@ -19,39 +20,44 @@ class TicketsImport implements ToModel,WithChunkReading
       
        
         $ticket = new Tickets();
-        $ticket->number=$row[0];
+        $ticket->number=$row['numero'];
         
-        if(!is_null ($row[1]))
+        if(!is_null ($row['resolvido']))
         {
-            $row[1] =\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[1]);
+            $row['resolvido'] =\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['resolvido']);
         }
         
-        $ticket->res_date = $row[1];
-        $ticket->priority =$row[2];
-        if(!is_null ($row[3]))
+        $ticket->res_date = $row['resolvido'];
+        $ticket->priority =$row['prioridade'];
+        if(!is_null ($row['criado_em']))
         {
-            $row[3] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[3]);
+            $row['criado_em'] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['criado_em']);
         }
   
-        $ticket->cr_date =$row[3];
-        if(!is_null ($row[4]))
+        $ticket->cr_date =$row['criado_em'];
+        if(!is_null ($row['atualizado_em']))
         {
-            $row[4] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[4]);
+            $row['atualizado_em'] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['atualizado_em']);
         }
        
-        $ticket->up_date =$row[4];
-        $ticket->conf_item =$row[5];
-        $ticket->assign =$row[6];
-        $ticket->status =$row[7];
-        $ticket->cl_code =$row[8];
-        if(!is_null ($row[9]))
+        $ticket->up_date =$row['atualizado_em'];
+        $ticket->conf_item =$row['item_de_configuracao'];
+        $ticket->assign =$row['atribuido_a'];
+        $ticket->status =$row['estado'];
+        $ticket->cl_code =$row['codigo_de_fechamento'];
+        if(!is_null ($row['fechado']))
         {
-            $row[9] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[9]);
+            $row['fechado'] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['fechado']);
         }
      
-        $ticket->cl_date =$row[9];
+        $ticket->cl_date =$row['fechado'];
+        $ticket->CL_NOTES=$row['notas_de_confirmacao_do_fechamento'];
         $ticket->save();
         
+    }
+    public function headingRow(): int
+    {
+        return 1;
     }
     public function chunkSize(): int
     {

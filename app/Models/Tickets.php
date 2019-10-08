@@ -39,7 +39,8 @@ class Tickets extends Model
         'ASSIGN',
         'STATUS',
         'CL_CODE',
-        'CL_DATE'
+        'CL_DATE',
+        'CL_NOTES'
     ];
 
     /**
@@ -58,7 +59,8 @@ class Tickets extends Model
         'STATUS' => 'string',
         'CL_CODE' => 'string',
         'CL_DATE' => 'datetime',
-        'ID' => 'integer'
+        'ID' => 'integer',
+        'CL_NOTES' => 'string'
     ];
 
     /**
