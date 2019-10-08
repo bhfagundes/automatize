@@ -51,7 +51,7 @@ class TicketsImport implements ToModel,WithChunkReading, WithHeadingRow
         }
      
         $ticket->cl_date =$row['fechado'];
-        $ticket->CL_NOTES=$row['notas_de_confirmacao_do_fechamento'];
+        $ticket->PRB_CODE=$row['problema'];
         $ticket->save();
         
     }

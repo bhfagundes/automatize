@@ -138,26 +138,47 @@ class TicketsController extends AppBaseController
     }
     public function index(Request $request)
     {
-        $data = \Lava::DataTable();
-        $data->addDateColumn('Day of Month')
-                    ->addNumberColumn('Projected')
-                    ->addNumberColumn('Official');
 
+        $mes = date('m')-1;
+        $ano=date('Y');
+        $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
+                                    ->whereRaw("MONTH(cr_date)={$mes}")
+                                    ->whereRaw("YEAR(cr_date)={$ano}")->get();
+
+        
+        $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->whereRaw("PRB_CODE IS NOT NULL") 
+                            ->get();
+
+        $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->whereRaw("PRB_CODE IS  NULL")
+                            ->where('CL_CODE','<>','Cancelado')
+                            ->where('STATUS','=','Encerrado')
+                            ->orWhere('STATUS','=','Fechado')
+                            ->where('CL_CODE','<>','Cancelado')
+                            ->get();
+      
+       $data = \Lava::DataTable();
+       $data->addStringColumn('Cancelados')->addNumberColumn('Cancelados');
+     
+        $ewa_data = [ "Cancelados", sizeof($tickets_cancelados)];
+      
+        $data->addRow($ewa_data);
         // Random Data For Example
-        for ($a = 1; $a < 30; $a++)
-        {
-            $rowData = [
-            "2014-8-$a", rand(800,1000), rand(800,1000)
-            ];
-
-            $data->addRow($rowData);
-        }
-
-        \Lava::LineChart('Stocks', $data, [
-        'title' => 'Stock Market Trends'
+        \Lava::ColumnChart('DATA', $data, [
+            'title' => "Cancelados",
+            'legend' => 'none',
+            'vAxis' => [
+                'title'=>'Total'
+            ],
+            'height' => 400,
+            'width' => 600
         ]);
+       
         $tickets = $this->ticketsRepository->all();
-        return view('tickets.index',compact('tickets','data'));
+        return view('tickets.index',compact('tickets'));
     }
 
     /**

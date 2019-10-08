@@ -40,7 +40,7 @@ class Tickets extends Model
         'STATUS',
         'CL_CODE',
         'CL_DATE',
-        'CL_NOTES'
+        'PRB_CODE'
     ];
 
     /**
@@ -60,7 +60,7 @@ class Tickets extends Model
         'CL_CODE' => 'string',
         'CL_DATE' => 'datetime',
         'ID' => 'integer',
-        'CL_NOTES' => 'string'
+        'PRB_CODE' => 'string'
     ];
 
     /**
