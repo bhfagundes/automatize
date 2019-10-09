@@ -161,22 +161,23 @@ class TicketsController extends AppBaseController
                             ->get();
       
        $data = \Lava::DataTable();
-       $data->addStringColumn('Cancelados')->addNumberColumn('Cancelados');
-     
-        $ewa_data = [ "Cancelados", sizeof($tickets_cancelados)];
-      
-        $data->addRow($ewa_data);
+       $data->addStringColumn('Analise') 
+       ->addNumberColumn('Cancelados') 
+       ->addNumberColumn('PRB') 
+       ->addNumberColumn('Gerais');
+       $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
+       $data->addRow($data_tickets);
+
         // Random Data For Example
         \Lava::ColumnChart('DATA', $data, [
-            'title' => "Cancelados",
-            'legend' => 'none',
+            'title' => "Análise Mensal",
             'vAxis' => [
                 'title'=>'Total'
             ],
             'height' => 400,
-            'width' => 600
+            'width' => 700
         ]);
-       
+  
         $tickets = $this->ticketsRepository->all();
         return view('tickets.index',compact('tickets'));
     }
