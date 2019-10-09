@@ -161,16 +161,32 @@ class TicketsController extends AppBaseController
                             ->get();
       
        $data = \Lava::DataTable();
+       $data->addStringColumn('Analise')
+       ->addNumberColumn('Total')
+       ->addRoleColumn('string', 'style')
+       ->addRoleColumn('string', 'annotation');
+
+
+       /* ->addNumberColumn('Percent')
+        ->addRoleColumn('string', 'style')
+        ->addRoleColumn('string', 'annotation');
        $data->addStringColumn('Analise') 
        ->addNumberColumn('Cancelados') 
        ->addNumberColumn('PRB') 
-       ->addNumberColumn('Gerais');
+       ->addNumberColumn('Gerais');*/
        $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
-       $data->addRow($data_tickets);
+       $data->addRows([
+        ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
+        ['PRB', sizeof($tickets_prb), 'orange'],
+        ['Gerais',   sizeof($tickets_gerais), 'red']
+    ]);      
+   
 
         // Random Data For Example
         \Lava::ColumnChart('DATA', $data, [
             'title' => "Análise Mensal",
+            'position'=> "center",
+            'legend' => 'none',
             'vAxis' => [
                 'title'=>'Total'
             ],
