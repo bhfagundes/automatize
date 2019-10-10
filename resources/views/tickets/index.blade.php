@@ -14,6 +14,12 @@
         <div class="clearfix"></div>
         <div id="stocks-div"></div>
             @columnchart('DATA', 'stocks-div')
+            <br>
+        <div id="stocks-div2"></div>  
+            @columnchart('DATAATUAL', 'stocks-div2')  
+            <BR>
+        <div id="stocks-div3"></div>  
+            @columnchart('DATASEMANAATUAL', 'stocks-div3')  
         <div class="clearfix"></div>
         <div class="box box-primary">
             <div class="box-body">

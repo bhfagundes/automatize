@@ -168,15 +168,6 @@ class TicketsController extends AppBaseController
        ->addNumberColumn('Total')
        ->addRoleColumn('string', 'style')
        ->addRoleColumn('string', 'annotation');
-
-
-       /* ->addNumberColumn('Percent')
-        ->addRoleColumn('string', 'style')
-        ->addRoleColumn('string', 'annotation');
-       $data->addStringColumn('Analise') 
-       ->addNumberColumn('Cancelados') 
-       ->addNumberColumn('PRB') 
-       ->addNumberColumn('Gerais');*/
        $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
        $data->addRows([
         ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
@@ -185,8 +176,6 @@ class TicketsController extends AppBaseController
         ['Em análise',   sizeof($tickets_analise), 'green']
     ]);      
    
-
-        // Random Data For Example
         \Lava::ColumnChart('DATA', $data, [
             'title' => "Análise Mensal",
             'position'=> "center",
@@ -197,7 +186,104 @@ class TicketsController extends AppBaseController
             'height' => 400,
             'width' => 700
         ]);
+
+        ## ANÁLISE MÊS ATUAL
+        $mes = date('m');
+        $ano=date('Y');
+        $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
+                                    ->whereIn('STATUS',['Encerrado','Fechado'])
+                                    ->whereRaw("MONTH(cr_date)={$mes}")
+                                    ->whereRaw("YEAR(cr_date)={$ano}")->get();
+
+        
+        $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->where('PRB_CODE', '!=', '') 
+                            ->get();
+
+        $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->whereIn('STATUS',['Encerrado','Fechado'])
+                            ->where('PRB_CODE', '=', '')
+                            ->get();
+        
+        $tickets_analise =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->whereIn('STATUS',['Pendente','Atendimento'])
+                            ->get();                   
+
+       $data_atual = \Lava::DataTable();
+       $data_atual->addStringColumn('Analise')
+       ->addNumberColumn('Total')
+       ->addRoleColumn('string', 'style')
+       ->addRoleColumn('string', 'annotation');
+       $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
+       $data_atual->addRows([
+        ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
+        ['PRB', sizeof($tickets_prb), 'orange'],
+        ['Gerais',   sizeof($tickets_gerais), 'red'],
+        ['Em análise',   sizeof($tickets_analise), 'green']
+    ]);      
+   
+        \Lava::ColumnChart('DATAATUAL', $data_atual, [
+            'title' => "Análise Mensal",
+            'position'=> "center",
+            'legend' => 'none',
+            'vAxis' => [
+                'title'=>'Total'
+            ],
+            'height' => 400,
+            'width' => 700
+        ]);
   
+    ## week(data) = (week(now()-1)
+         ## ANÁLISE semana ATUAL
+         $mes = date('m');
+         $ano=date('Y');
+         $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
+                                     ->whereIn('STATUS',['Encerrado','Fechado'])
+                                     ->whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
+                                     ->whereRaw("YEAR(cr_date)={$ano}")->get();
+ 
+         
+         $tickets_prb = Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
+                             ->whereRaw("YEAR(cr_date)={$ano}")
+                             ->where('PRB_CODE', '!=', '') 
+                             ->get();
+         $tickets_gerais =  Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
+                             ->whereRaw("YEAR(cr_date)={$ano}")
+                             ->whereIn('STATUS',['Encerrado','Fechado'])
+                             ->where('PRB_CODE', '=', '')
+                             ->get();
+         
+         $tickets_analise =  Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
+                             ->whereRaw("YEAR(cr_date)={$ano}")
+                             ->whereIn('STATUS',['Pendente','Atendimento'])
+                             ->get();                   
+ 
+        $data_semana_atual = \Lava::DataTable();
+        $data_semana_atual->addStringColumn('Analise')
+        ->addNumberColumn('Total')
+        ->addRoleColumn('string', 'style')
+        ->addRoleColumn('string', 'annotation');
+        $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
+        $data_semana_atual->addRows([
+         ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
+         ['PRB', sizeof($tickets_prb), 'orange'],
+         ['Gerais',   sizeof($tickets_gerais), 'red'],
+         ['Em análise',   sizeof($tickets_analise), 'green']
+     ]);      
+    
+         \Lava::ColumnChart('DATASEMANAATUAL', $data_semana_atual, [
+             'title' => "Análise Mensal",
+             'position'=> "center",
+             'legend' => 'none',
+             'vAxis' => [
+                 'title'=>'Total'
+             ],
+             'height' => 400,
+             'width' => 700
+         ]);
         $tickets = $this->ticketsRepository->all();
         return view('tickets.index',compact('tickets'));
     }
