@@ -142,24 +142,27 @@ class TicketsController extends AppBaseController
         $mes = date('m')-1;
         $ano=date('Y');
         $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
+                                    ->whereIn('STATUS',['Encerrado','Fechado'])
                                     ->whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")->get();
 
         
         $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
-                            ->whereRaw("PRB_CODE IS NOT NULL") 
+                            ->where('PRB_CODE', '!=', '') 
                             ->get();
 
         $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
-                            ->whereRaw("PRB_CODE IS  NULL")
-                            ->where('CL_CODE','<>','Cancelado')
-                            ->where('STATUS','=','Encerrado')
-                            ->orWhere('STATUS','=','Fechado')
-                            ->where('CL_CODE','<>','Cancelado')
+                            ->whereIn('STATUS',['Encerrado','Fechado'])
+                            ->where('PRB_CODE', '=', '')
                             ->get();
-      
+        
+        $tickets_analise =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                            ->whereRaw("YEAR(cr_date)={$ano}")
+                            ->whereIn('STATUS',['Pendente','Atendimento'])
+                            ->get();                   
+
        $data = \Lava::DataTable();
        $data->addStringColumn('Analise')
        ->addNumberColumn('Total')
@@ -178,7 +181,8 @@ class TicketsController extends AppBaseController
        $data->addRows([
         ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
         ['PRB', sizeof($tickets_prb), 'orange'],
-        ['Gerais',   sizeof($tickets_gerais), 'red']
+        ['Gerais',   sizeof($tickets_gerais), 'red'],
+        ['Em análise',   sizeof($tickets_analise), 'green']
     ]);      
    
 
