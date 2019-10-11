@@ -284,6 +284,54 @@ class TicketsController extends AppBaseController
              'height' => 400,
              'width' => 700
          ]);
+        ##Backlog anual
+        $mes = date('m');
+         $ano=date('Y');
+        ## $backlog_anual = new Lavacharts;
+         ##$backlog = $backlog_anual->DataTable();
+         $mes = date('m');
+         $ano=date('Y');
+         $backlog_anual = \Lava::DataTable();
+         $backlog_anual->addStringColumn('Analise')
+                        ->addNumberColumn('Abertos')
+                        ->addNumberColumn('Resolvidos');
+        for($i=1; $i<=12;$i++)
+        {
+            if($mes == 1)
+            {
+                $mes = 12;
+                $ano--;
+            }
+            else
+            {
+                $mes--;
+            }
+            $tickets_abertos= Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                      ->whereRaw("YEAR(cr_date)={$ano}")->get();    
+                                                    
+            $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
+                                        ->whereRaw("YEAR(CL_DATE)={$ano}")->get();
+          
+            $backlog_anual->addRow([$mes."/".$ano, sizeof( $tickets_abertos),  sizeof( $tickets_fechados)]);                     
+            
+        }
+        ##teste combochart
+       
+            \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
+            'title' => 'BackLog Anual',
+            'titleTextStyle' => [
+                'color'    => 'rgb(123, 65, 89)',
+                'fontSize' => 16
+            ],
+            'legend' => [
+                'position' => 'in'
+            ],
+            'seriesType' => 'bars',
+            'series' => [
+                1 => ['type' => 'line']
+            ]
+        ]);
+        
         $tickets = $this->ticketsRepository->all();
         return view('tickets.index',compact('tickets'));
     }
