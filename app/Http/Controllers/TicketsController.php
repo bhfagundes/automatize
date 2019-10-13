@@ -335,6 +335,8 @@ class TicketsController extends AppBaseController
             'legend' => [
                 'position' => 'in'
             ],
+            'backgroundColor' => '#000',
+           
             'seriesType' => 'bars',
             'series' => [
                 1 => ['type' => 'line']
