@@ -164,7 +164,7 @@ class TicketsController extends AppBaseController
                             ->get();                   
 
        $data = \Lava::DataTable();
-       $data->addStringColumn('Analise')
+       $data->addStringColumn('Analise Mês anterior')
        ->addNumberColumn('Total')
        ->addRoleColumn('string', 'style')
        ->addRoleColumn('string', 'annotation');
@@ -177,7 +177,7 @@ class TicketsController extends AppBaseController
     ]);      
    
         \Lava::ColumnChart('DATA', $data, [
-            'title' => "Análise Mensal",
+            'title' => "Análise Mensal (Mês anterior)",
             'position'=> "center",
             'legend' => 'none',
             'vAxis' => [
@@ -226,7 +226,7 @@ class TicketsController extends AppBaseController
     ]);      
    
         \Lava::ColumnChart('DATAATUAL', $data_atual, [
-            'title' => "Análise Mensal",
+            'title' => "Análise Mensal (Mês atual)",
             'position'=> "center",
             'legend' => 'none',
             'vAxis' => [
@@ -275,7 +275,7 @@ class TicketsController extends AppBaseController
      ]);      
     
          \Lava::ColumnChart('DATASEMANAATUAL', $data_semana_atual, [
-             'title' => "Análise Mensal",
+             'title' => "Análise Semana anterior",
              'position'=> "center",
              'legend' => 'none',
              'vAxis' => [
@@ -289,12 +289,12 @@ class TicketsController extends AppBaseController
          $ano=date('Y');
         ## $backlog_anual = new Lavacharts;
          ##$backlog = $backlog_anual->DataTable();
-         $mes = date('m');
-         $ano=date('Y');
+        $dados_printar=[];
          $backlog_anual = \Lava::DataTable();
          $backlog_anual->addStringColumn('Analise')
                         ->addNumberColumn('Abertos')
                         ->addNumberColumn('Resolvidos');
+        $k=0;
         for($i=1; $i<=12;$i++)
         {
             if($mes == 1)
@@ -311,12 +311,21 @@ class TicketsController extends AppBaseController
                                                     
             $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
                                         ->whereRaw("YEAR(CL_DATE)={$ano}")->get();
-          
-            $backlog_anual->addRow([$mes."/".$ano, sizeof( $tickets_abertos),  sizeof( $tickets_fechados)]);                     
             
+            $dados_printar[$i]['abertos']=sizeof($tickets_abertos);
+            $dados_printar[$i]['fechados']=sizeof($tickets_fechados);
+            $dados_printar[$i]['data']=$mes."/".$ano;
+            $k++;
         }
+        
         ##teste combochart
        
+        for ($i=12;$i>=1;$i--)
+        {
+            $backlog_anual->addRow([$dados_printar[$i]['data'], $dados_printar[$i]['abertos'],  $dados_printar[$i]['fechados']]);                     
+
+        }
+
             \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
             'title' => 'BackLog Anual',
             'titleTextStyle' => [
