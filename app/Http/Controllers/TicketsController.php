@@ -14,6 +14,7 @@ use App\Imports\TicketsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Khill\Lavacharts\Lavacharts;
 use App\Models\CountryUser;
+use Redmine\Client as Client;
 
 class TicketsController extends AppBaseController
 {
@@ -138,15 +139,27 @@ class TicketsController extends AppBaseController
     }
     public function index(Request $request)
     {
-
+        $client = new Client('http://10.30.22.55','bhfagundes','beiPhone7*');
         $mes = date('m')-1;
         $ano=date('Y');
         $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
                                     ->whereIn('STATUS',['Encerrado','Fechado'])
                                     ->whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")->get();
+        //Buscar os PRB'S DE PERNAMBUCO 
+      // dd($client->issue->all(['project_id' => '6'
+       // ]));
+       $redmine= $client->issue->all();
 
-        
+        for($i=0; $i<sizeof($redmine['issues']);$i++)
+        {
+           if(($redmine['issues'][$i]['project']['name'] =='FCA – Pernambuco' || $redmine['issues'][$i]['project']['name'] =='FIAPE')
+                && ($redmine['issues'][$i]['status']['name'] == 'Under analysis' || $redmine['issues'][$i]['status']['name'] == 'UAT'
+                || $redmine['issues'][$i]['status']['name'] == 'To deploy' || $redmine['issues'][$i]['status']['name']=='Internal tests'))
+           {
+                //echo ('Pernambuco ' . $i .' '. ':' . $redmine['issues'][$i]['custom_fields'][5]['value'] . '<br>');
+           }
+        }
         $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
                             ->where('PRB_CODE', '!=', '') 
@@ -168,7 +181,6 @@ class TicketsController extends AppBaseController
        ->addNumberColumn('Total')
        ->addRoleColumn('string', 'style')
        ->addRoleColumn('string', 'annotation');
-       $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
        $data->addRows([
         ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
         ['PRB', sizeof($tickets_prb), 'orange'],
@@ -285,8 +297,17 @@ class TicketsController extends AppBaseController
              'width' => 700
          ]);
         ##Backlog anual
-        $mes = date('m');
-         $ano=date('Y');
+         $mes = date('m');
+         $ano=date('Y')-1;
+        
+        $encerrados_backlog=Tickets::whereRaw("MONTH(cr_date)<={$mes}")
+                ->whereRaw("YEAR(cr_date)<={$ano}")
+                ->whereIn('STATUS',['Encerrado','Fechado'])
+                ->get();
+        $abertos_backlog=Tickets::whereRaw("MONTH(cr_date)<={$mes}")
+                ->whereRaw("YEAR(cr_date)<={$ano}")
+                ->whereNotIn('STATUS',['Cancelado'])
+                ->get();        
         ## $backlog_anual = new Lavacharts;
          ##$backlog = $backlog_anual->DataTable();
         $dados_printar=[];
@@ -306,6 +327,7 @@ class TicketsController extends AppBaseController
             {
                 $mes--;
             }
+            
             $tickets_abertos= Tickets::whereRaw("MONTH(cr_date)={$mes}")
                                       ->whereRaw("YEAR(cr_date)={$ano}")->get();    
                                                     
