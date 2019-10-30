@@ -20,7 +20,7 @@ Auth::routes();
 Route::get('/home', 'HomeController@index');
 
 
-
+Route::get('/tkts/{id}','TicketsController@index2');
 
 Route::resource('tickets', 'TicketsController');
 
