@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Khill\Lavacharts\Lavacharts;
 use App\Models\CountryUser;
 use Redmine\Client as Client;
+use DB;
 
 class TicketsController extends AppBaseController
 {
@@ -298,23 +299,34 @@ class TicketsController extends AppBaseController
         $ano=date('Y');
         ##abertos - fechados
         $ano_aux=date('Y')-1;
-        $fechados_aux=Tickets::whereRaw("MONTH(cl_date)<{$mes}")
-                        ->whereRaw("YEAR(cl_date)<={$ano_aux}")
+    
+        $mes_in=$mes--;
+        $mes_in--;
+        $dia =date(date("t"));
+        $data_in='2000' . "-" . $mes_in . "-". "01";
+        $mes_in--;  
+        $data_fim=$ano_aux . "-". $mes_in . "-".$dia;
+        //dd( $data_in. "    " . $data_fim);
+        /*$abertos= DB::table('tickets')
+        ->select(DB::raw("cr_date between date($data_in) and date($data_fim)"))
+        ->get();*/
+        $ano_in = $ano --;
+        //dd($abertos);
+        //select count(*) from tickets where cr_date between date( '2000-10-01') and date( '2018-09-30')
+        $abertos_aux = DB::select("select * from tickets where cr_date between date( '". $data_in."') and date( '" . $data_fim."')");
+        $fechados_aux=  DB::select("select * from tickets where cl_date between date( '". $data_in."') and date( '" . $data_fim."')");
+       
+       
                         //->whereIn('STATUS',['Encerrado','Fechado'])//,'Cancelado'
-                        ->get();
-        $abertos_aux=Tickets::whereRaw("MONTH(cr_date)<{$mes}")
-                        ->whereRaw("YEAR(cr_date)<={$ano_aux}")
-                        ->get();
+                        
+
+        //$abertos_aux=Tickets::whereRaw("MONTH(cr_date)<{$mes} and  YEAR(cr_date)<={$ano_aux}")
+                     
+                   //     ->get();
+                    
         $soma= sizeof($abertos_aux) - sizeof($fechados_aux);
         //dd($fechados_aux);
-        $encerrados_backlog=Tickets::whereRaw("MONTH(cr_date)<={$mes}")
-                ->whereRaw("YEAR(cr_date)<={$ano}")
-                ->whereIn('STATUS',['Encerrado','Fechado'])
-                ->get();
-        $abertos_backlog=Tickets::whereRaw("MONTH(cr_date)<={$mes}")
-                ->whereRaw("YEAR(cr_date)<={$ano}")
-                ->whereNotIn('STATUS',['Cancelado'])
-                ->get();        
+       
         ## $backlog_anual = new Lavacharts;
          ##$backlog = $backlog_anual->DataTable();
         $dados_printar=[];
@@ -340,7 +352,7 @@ class TicketsController extends AppBaseController
             $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
                                         ->whereRaw("YEAR(CL_DATE)={$ano}")->get();
 
-            $soma= (sizeof($abertos_aux) - sizeof($fechados_aux)) + $soma ;
+            $soma= (sizeof($tickets_abertos) - sizeof($tickets_fechados)) + $soma ;
             $dados_printar[$i]['abertos']=sizeof($tickets_abertos);
             $dados_printar[$i]['fechados']=sizeof($tickets_fechados);
             $dados_printar[$i]['backlog']=$soma;
