@@ -53,7 +53,7 @@ class TicketsController extends AppBaseController
 
         $lava->GeoChart('Popularity', $popularity);
         ##passar variavel lava como parametro
-        /* na view usamos : 
+        /* na view usamos :
             <div id="pop-div" style="width:800px;border:1px solid black"></div>
 
            <?= $lava->render('GeoChart', 'Popularity', 'pop-div') ?>
@@ -105,7 +105,7 @@ class TicketsController extends AppBaseController
         \Lava::LineChart('Stocks', $data, [
         'title' => 'Stock Market Trends'
         ]);
-        /* 
+        /*
             na view:
             <div id="stocks-div"></div>
             @linechart('Stocks', 'stocks-div')
@@ -139,7 +139,7 @@ class TicketsController extends AppBaseController
         */
 
     }
-    
+
     public function plotLastMonth($solucionador)
     {
         $mes = date('m')-1;
@@ -149,12 +149,12 @@ class TicketsController extends AppBaseController
                                     ->whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")
                                     ->whereIn('CONF_ITEM',$solucionador)->get();
-                                    
+
         $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")
-                                    ->where('PRB_CODE', '!=', '') 
+                                    ->where('PRB_CODE', '!=', '')
                                     ->whereIn('CONF_ITEM',$solucionador)
-                                    
+
                                     ->get();
                                     //dd($tickets_prb);
         $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
@@ -163,24 +163,24 @@ class TicketsController extends AppBaseController
                                     ->where('PRB_CODE', '=', '')
                                     ->whereIn('CONF_ITEM',$solucionador)
                                     ->get();
-                
+
         $tickets_analise =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")
                                     ->whereIn('STATUS',['Pendente','Atendimento'])
                                     ->whereIn('CONF_ITEM',$solucionador)
-                                    ->get();        
+                                    ->get();
         $data = \Lava::DataTable();
         $data->addStringColumn('Analise Mês anterior')
                                     ->addNumberColumn('Total')
                                     ->addRoleColumn('string', 'style')
                                     ->addRoleColumn('string', 'annotation');
         $data->addRows([
-                                     ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
-                                     ['PRB', sizeof($tickets_prb), 'orange'],
-                                     ['Gerais',   sizeof($tickets_gerais), 'red'],
-                                     ['Em análise',   sizeof($tickets_analise), 'green']
-                                 ]);      
-                                
+                                     ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
+                                     ['PRB', sizeof($tickets_prb), 'orange',sizeof($tickets_prb)],
+                                     ['Gerais',   sizeof($tickets_gerais), 'red',sizeof($tickets_gerais)],
+                                     ['Em análise',   sizeof($tickets_analise), 'green',sizeof($tickets_analise)]
+                                 ]);
+
         \Lava::ColumnChart('DATA', $data, [
                                          'title' => "Análise Mensal (Mês anterior)",
                                          'position'=> "center",
@@ -190,11 +190,11 @@ class TicketsController extends AppBaseController
                                          ],
                                          'height' => 400,
                                          'width' => 700
-                                     ]);             
-        return;                                                           
-      
+                                     ]);
+        return;
+
     }
-    
+
     public function plotActualMonth($solucionador)
     {
         $mes = date('m');
@@ -205,10 +205,10 @@ class TicketsController extends AppBaseController
                                     ->whereRaw("YEAR(cr_date)={$ano}")
                                     ->whereIn('CONF_ITEM',$solucionador)->get();
 
-        
+
         $tickets_prb = Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
-                            ->where('PRB_CODE', '!=', '') 
+                            ->where('PRB_CODE', '!=', '')
                             ->whereIn('CONF_ITEM',$solucionador)
                             ->get();
 
@@ -218,12 +218,12 @@ class TicketsController extends AppBaseController
                             ->where('PRB_CODE', '=', '')
                             ->whereIn('CONF_ITEM',$solucionador)
                             ->get();
-        
+
         $tickets_analise =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
                             ->whereIn('STATUS',['Pendente','Atendimento'])
                             ->whereIn('CONF_ITEM',$solucionador)
-                            ->get();                   
+                            ->get();
 
        $data_atual = \Lava::DataTable();
        $data_atual->addStringColumn('Analise')
@@ -232,12 +232,12 @@ class TicketsController extends AppBaseController
        ->addRoleColumn('string', 'annotation');
        $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
        $data_atual->addRows([
-        ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
-        ['PRB', sizeof($tickets_prb), 'orange'],
-        ['Gerais',   sizeof($tickets_gerais), 'red'],
-        ['Em análise',   sizeof($tickets_analise), 'green']
-    ]);      
-   
+        ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
+        ['PRB', sizeof($tickets_prb), 'orange', sizeof($tickets_prb)],
+        ['Gerais',   sizeof($tickets_gerais), 'red', sizeof($tickets_gerais)],
+        ['Em análise',   sizeof($tickets_analise), 'green',sizeof($tickets_analise)]
+    ]);
+
         \Lava::ColumnChart('DATAATUAL', $data_atual, [
             'title' => "Análise Mensal (Mês atual)",
             'position'=> "center",
@@ -248,24 +248,24 @@ class TicketsController extends AppBaseController
             'height' => 400,
             'width' => 700
         ]);
-        return;  
+        return;
 
     }
     public function plotActualWeek($solucionador)
     {
-        $mes = date('m');
+         $mes = date('m');
          $ano=date('Y');
          $tickets_cancelados = Tickets::where('CL_CODE','=','Cancelado')
                                      ->whereIn('STATUS',['Encerrado','Fechado'])
                                      ->whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
                                      ->whereRaw("YEAR(cr_date)={$ano}")
                                      ->whereIn('CONF_ITEM',$solucionador)->get();
- 
-         
+
+
          $tickets_prb = Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
                              ->whereRaw("YEAR(cr_date)={$ano}")
                              ->where('PRB_CODE', '!=', '')
-                             ->whereIn('CONF_ITEM',$solucionador) 
+                             ->whereIn('CONF_ITEM',$solucionador)
                              ->get();
          $tickets_gerais =  Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
                              ->whereRaw("YEAR(cr_date)={$ano}")
@@ -273,13 +273,13 @@ class TicketsController extends AppBaseController
                              ->where('PRB_CODE', '=', '')
                              ->whereIn('CONF_ITEM',$solucionador)
                              ->get();
-         
+
          $tickets_analise =  Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
                              ->whereRaw("YEAR(cr_date)={$ano}")
                              ->whereIn('STATUS',['Pendente','Atendimento'])
                              ->whereIn('CONF_ITEM',$solucionador)
-                             ->get();                   
- 
+                             ->get();
+
         $data_semana_atual = \Lava::DataTable();
         $data_semana_atual->addStringColumn('Analise')
         ->addNumberColumn('Total')
@@ -287,12 +287,12 @@ class TicketsController extends AppBaseController
         ->addRoleColumn('string', 'annotation');
         $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
         $data_semana_atual->addRows([
-         ['Cancelados',  sizeof($tickets_cancelados), 'blue'],
-         ['PRB', sizeof($tickets_prb), 'orange'],
-         ['Gerais',   sizeof($tickets_gerais), 'red'],
-         ['Em análise',   sizeof($tickets_analise), 'green']
-     ]);      
-    
+         ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
+         ['PRB', sizeof($tickets_prb), 'orange',sizeof($tickets_prb)],
+         ['Gerais',   sizeof($tickets_gerais), 'red', sizeof($tickets_gerais)],
+         ['Em análise',   sizeof($tickets_analise), 'green', sizeof($tickets_analise)]
+     ]);
+
          \Lava::ColumnChart('DATASEMANAATUAL', $data_semana_atual, [
              'title' => "Análise Semana anterior",
              'position'=> "center",
@@ -303,22 +303,180 @@ class TicketsController extends AppBaseController
              'height' => 400,
              'width' => 700
          ]);
-         return;  
+         return;
     }
 
-    public function plotAnnualBacklog($solucionador,$mes,$ano)
+    public function plotAnnualBacklogContagem($solucionador,$mes,$ano)
     {
-    
+        $data_in = "01-09-2019";
+        $data_final = date("30-09-2019");
+        $ano=2019;
+        $mes=9;
+        $abertos_aux = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                ->whereRaw("YEAR(cr_date)={$ano}")
+                                ->whereIn('CONF_ITEM',$solucionador)
+                                ->get();
+
+        $fechados_aux = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                ->whereRaw("YEAR(cr_date)={$ano}")
+                                ->whereIn('CONF_ITEM',$solucionador)
+                                ->whereRaw("MONTH(cl_date)={$mes}")
+                                ->whereRaw("YEAR(cl_date)={$ano}")
+                                ->get();
+        $data1 =  date('01-m-Y', strtotime('+1 months',strtotime($data_in)));
+        $data2 = date('d-m-Y');
+        $soma= sizeof($abertos_aux) - sizeof($fechados_aux);
+        $backlog_anual = \Lava::DataTable();
+        $backlog_anual->addStringColumn('Analise')
+                       ->addNumberColumn('Abertos')
+                       ->addNumberColumn('Resolvidos')
+                       ->addNumberColumn('Backlog');
+        $i=0;
+        while(strtotime($data2) >= strtotime($data1))
+        {
+            $mes= date('m', strtotime($data1));
+            $ano=date('Y', strtotime($data1));;
+            $tickets_abertos= Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                    ->whereRaw("YEAR(cr_date)={$ano}")
+                                    ->whereIn('CONF_ITEM',$solucionador)
+                                    ->get();
+            $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
+                                    ->whereRaw("YEAR(CL_DATE)={$ano}")
+                                    ->whereIn('CONF_ITEM',$solucionador)->get();
+
+            $soma= (sizeof($tickets_abertos) - sizeof($tickets_fechados)) + $soma ;
+            $dados_printar[$i]['abertos']=sizeof($tickets_abertos);
+            $dados_printar[$i]['fechados']=sizeof($tickets_fechados);
+            $dados_printar[$i]['backlog']=$soma;
+            $dados_printar[$i]['data']=$mes."/".$ano;
+            $backlog_anual->addRow([[$dados_printar[$i]['data']], [$dados_printar[$i]['abertos'],'10'],[$dados_printar[$i]['fechados'],'9' ], $dados_printar[$i]['backlog']]);
+            $data1 =  date('d-m-Y', strtotime('+1 months',strtotime($data1)));
+            $i++;
+        }
+        \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
+            'title' => 'BackLog Anual',
+            'titleTextStyle' => [
+                'color'    => 'rgb(123, 65, 89)',
+                'fontSize' => 12
+            ],
+            'legend' => [
+                'position' => 'right'
+            ],
+
+           # 'backgroundColor' => '#000',
+            'height' => '100%',
+            'width' => 700,
+            'seriesType' => 'bars',
+            'format' => 'integer',
+            'series' => [
+                2 => ['type' => 'line',
+                      'format' => 'integer',
+                ]
+            ]
+        ]);
+
+
+        return;
+        //$abertos=;
+        //$fechados;
+
+    }
+
+    public function plotAnnualBacklogArgentina($solucionador,$mes,$ano)
+    {
+        ## a contagem começa em 09/2019
+        ##faremos uma função diferente
+        ##data inicial começará em 09/2019
+        ##nesse caso adotaremos a soma começando de setembro
+        ##verificando diferença entre duas datas se estão em menos de 1 anos
+
+        $data_in = "12-08-2019";
+        $data_final = date("30-09-2019");
+        $ano=2019;
+        $mes=9;
+        $abertos_aux = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                ->whereRaw("YEAR(cr_date)={$ano}")
+                                ->whereIn('CONF_ITEM',$solucionador)
+                                ->get();
+
+        $fechados_aux = Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                ->whereRaw("YEAR(cr_date)={$ano}")
+                                ->whereIn('CONF_ITEM',$solucionador)
+                                ->whereRaw("MONTH(cl_date)={$mes}")
+                                ->whereRaw("YEAR(cl_date)={$ano}")
+                                ->get();
+        $data1 =  date('01-m-Y', strtotime('+1 months',strtotime($data_in)));
+        $data2 = date('d-m-Y');
+        $soma= sizeof($abertos_aux) - sizeof($fechados_aux);
+        $backlog_anual = \Lava::DataTable();
+        $backlog_anual->addStringColumn('Analise')
+                       ->addNumberColumn('Abertos')
+                       ->addNumberColumn('Resolvidos')
+                       ->addNumberColumn('Backlog');
+        $i=0;
+        while(strtotime($data2) >= strtotime($data1))
+        {
+            $mes= date('m', strtotime($data1));
+            $ano=date('Y', strtotime($data1));;
+            $tickets_abertos= Tickets::whereRaw("MONTH(cr_date)={$mes}")
+                                    ->whereRaw("YEAR(cr_date)={$ano}")
+                                    ->whereIn('CONF_ITEM',$solucionador)
+                                    ->get();
+            $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
+                                    ->whereRaw("YEAR(CL_DATE)={$ano}")
+                                    ->whereIn('CONF_ITEM',$solucionador)->get();
+
+            $soma= (sizeof($tickets_abertos) - sizeof($tickets_fechados)) + $soma ;
+            $dados_printar[$i]['abertos']=sizeof($tickets_abertos);
+            $dados_printar[$i]['fechados']=sizeof($tickets_fechados);
+            $dados_printar[$i]['backlog']=$soma;
+            $dados_printar[$i]['data']=$mes."/".$ano;
+            $backlog_anual->addRow([[$dados_printar[$i]['data']], [$dados_printar[$i]['abertos'],'10'],[$dados_printar[$i]['fechados'],'9' ], $dados_printar[$i]['backlog']]);
+            $data1 =  date('d-m-Y', strtotime('+1 months',strtotime($data1)));
+            $i++;
+        }
+        \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
+            'title' => 'BackLog Anual',
+            'titleTextStyle' => [
+                'color'    => 'rgb(123, 65, 89)',
+                'fontSize' => 12
+            ],
+            'legend' => [
+                'position' => 'right'
+            ],
+
+           # 'backgroundColor' => '#000',
+            'height' => '100%',
+            'width' => 700,
+            'seriesType' => 'bars',
+            'format' => 'integer',
+            'series' => [
+                2 => ['type' => 'line',
+                      'format' => 'integer',
+                ]
+            ]
+        ]);
+
+
+        return;
+        //$abertos=;
+        //$fechados;
+    }
+    public function plotAnnualBacklog($solucionador)
+    {
+
+        ## precisamos validar a partir de quando será gerado nosso backlog
+        ## para contagem o nosso backlog começa em
         $mes = date('m');
         $ano=date('Y');
         ##abertos - fechados
         $ano_aux=date('Y')-1;
-    
+
         $mes_in=$mes--;
         $mes_in--;
         $dia =date(date("t"));
         $data_in='2000' . "-" . $mes_in . "-". "01";
-        $mes_in--;  
+        $mes_in--;
         $data_fim=$ano_aux . "-". $mes_in . "-".$dia;
         //dd( $data_in. "    " . $data_fim);
         /*$abertos= DB::table('tickets')
@@ -335,25 +493,25 @@ class TicketsController extends AppBaseController
          $fechados_aux=Tickets::whereBetween('cl_date', [$data_in, $data_fim])
                                 ->whereIn('CONF_ITEM',$solucionador)
                                 ->get();
-       
-       
-       /*                         DB::select("select * from tickets where cr_date between date( '". $data_in."') and date( '" . $data_fim."') and 
+
+
+       /*                         DB::select("select * from tickets where cr_date between date( '". $data_in."') and date( '" . $data_fim."') and
         CONF_ITEM in (".$solucionador.")");
-        $fechados_aux=  DB::select("select * from tickets where cl_date between date( '". $data_in."') and date( '" . $data_fim."') and 
+        $fechados_aux=  DB::select("select * from tickets where cl_date between date( '". $data_in."') and date( '" . $data_fim."') and
         CONF_ITEM in (".$solucionador.")");*/
-       
-       
+
+
                         //->whereIn('STATUS',['Encerrado','Fechado'])//,'Cancelado'
-                        
+
 
         //$abertos_aux=Tickets::whereRaw("MONTH(cr_date)<{$mes} and  YEAR(cr_date)<={$ano_aux}")
-                     
+
                    //     ->get();
-                    
+
         $soma= sizeof($abertos_aux) - sizeof($fechados_aux);
-      
+
         //dd($fechados_aux);
-       
+
         ## $backlog_anual = new Lavacharts;
          ##$backlog = $backlog_anual->DataTable();
         $dados_printar=[];
@@ -372,13 +530,13 @@ class TicketsController extends AppBaseController
         }
         for($i=1; $i<=12;$i++)
         {
-                        
+
             $tickets_abertos= Tickets::whereRaw("MONTH(cr_date)={$mes}")
                                       ->whereRaw("YEAR(cr_date)={$ano}")
                                       ->whereIn('CONF_ITEM',$solucionador)
-                                      ->get();  
-                                        
-                                      
+                                      ->get();
+
+
             $tickets_fechados= Tickets::whereRaw("MONTH(CL_DATE)={$mes}")
                                         ->whereRaw("YEAR(CL_DATE)={$ano}")
                                         ->whereIn('CONF_ITEM',$solucionador)->get();
@@ -395,10 +553,10 @@ class TicketsController extends AppBaseController
                 $mes = 1;
                 $ano ++;
             }
-            
+
         }
-   
-        dd($dados_printar[10]);
+
+
             \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
             'title' => 'BackLog Anual',
             'titleTextStyle' => [
@@ -409,14 +567,14 @@ class TicketsController extends AppBaseController
                 'position' => 'in'
             ],
             'backgroundColor' => '#000',
-           
+
             'seriesType' => 'bars',
             'series' => [
                 2 => ['type' => 'line']
             ]
         ]);
-        return;  
-            
+        return;
+
     }
     public function index2(int $id)
     {
@@ -428,14 +586,14 @@ class TicketsController extends AppBaseController
         5 - FIASA - CLICK-MOPAR-BETIM-L-P
         6 - Pernambuco - CLICK-FIAPE-L-P
         7 - Aurora
-        8 - Sorocaba/Cuiabá - Click_Parts_Sorocaba-82-E-P        
-                            Click_Parts_Sorocaba-16-E-P        
+        8 - Sorocaba/Cuiabá - Click_Parts_Sorocaba-82-E-P
+                            Click_Parts_Sorocaba-16-E-P
                             Click_Parts_Cuiaba-E-P
                             CSPS_AG-CE_LATAM-E-P_EXECUTION
         9 - Argentina - Click_Parts_Malvinas-E-P
         10 - Contagem - Click MFG Contagem-E-P
-        
-        */   
+
+        */
         $mes = 9;
         $ano = 2019;
         switch ($id) {
@@ -443,57 +601,70 @@ class TicketsController extends AppBaseController
                 $nome_cliente='Cordoba';
 
                 $solucionador[0]='Click MFG Cordoba-E-P';
+                $this->plotAnnualBacklog($solucionador);
                 break;
             case 2:
                 $nome_cliente='Sete Lagoas';
                 $solucionador[0]='INBOUND-CLICK-IVECO-SETE LAGOAS-E-P';
+                $this->plotAnnualBacklog($solucionador);
                 break;
             case 3:
                 $nome_cliente='OBT';
                 $solucionador[0]='OBT-OT-FIAPE-L-P';
+                $this->plotAnnualBacklog($solucionador);
+
                 break;
             case 4:
                     $nome_cliente='CNH';
                     $solucionador[0]='Click_Parts_Sorocaba-82-E-P';
-                    $solucionador[1]='Click_Parts_Sorocaba-16-E-P';  
-                    $solucionador[2]='Click_Parts_Cuiaba-E-P';      
-                    $solucionador[3]=' CSPS_AG-CE_LATAM-E-P_EXECUTION' ; 
-                    $solucionador[4]='Click_Parts_Malvinas-E-P';    
-                break;    
+                    $solucionador[1]='Click_Parts_Sorocaba-16-E-P';
+                    $solucionador[2]='Click_Parts_Cuiaba-E-P';
+                    $solucionador[3]=' CSPS_AG-CE_LATAM-E-P_EXECUTION' ;
+                    $solucionador[4]='Click_Parts_Malvinas-E-P';
+                    $this->plotAnnualBacklog($solucionador);
+                break;
             case 5:
                 $nome_cliente='FIASA';
                 $solucionador[0]='CLICK-MOPAR-BETIM-L-P';
+                $this->plotAnnualBacklog($solucionador);
                 break;
              case 6:
                 $nome_cliente='Pernambuco';
+
                 $solucionador[0]='CLICK-FIAPE-L-P';
-                break;     
+                $this->plotAnnualBacklog($solucionador);
+                break;
             case 7:
                 $nome_cliente='Aurora';
+                $this->plotAnnualBacklog($solucionador);
                 #$solucionador='CLICK-MOPAR-BETIM-L-P';
-                break; 
+                break;
             case 8:
                 $nome_cliente='Sorocaba/Cuiabá';
                 $solucionador[0]='Click_Parts_Sorocaba-82-E-P';
-                $solucionador[1]='Click_Parts_Sorocaba-16-E-P';  
-                $solucionador[2]='Click_Parts_Cuiaba-E-P';      
-                $solucionador[3]=' CSPS_AG-CE_LATAM-E-P_EXECUTION' ;      
-                break;    
+                $solucionador[1]='Click_Parts_Sorocaba-16-E-P';
+                $solucionador[2]='Click_Parts_Cuiaba-E-P';
+                $solucionador[3]=' CSPS_AG-CE_LATAM-E-P_EXECUTION' ;
+                $this->plotAnnualBacklog($solucionador);
+                break;
             case 9:
                 $nome_cliente='Argentina';
                 $mes = 9;
                 $ano = 2019;
-                $solucionador[0]='Click_Parts_Malvinas-E-P';      
-                break; 
+                $solucionador[0]='Click_Parts_Malvinas-E-P';
+                $this->plotAnnualBacklogArgentina($solucionador,$mes,$ano);
+                break;
             case 10:
                 $nome_cliente='Contagem';
-                $solucionador[0]='Click MFG Contagem-E-P';      
-                break;                           
+
+                $solucionador[0]='Click MFG Contagem-E-P';
+                $this->plotAnnualBacklogContagem($solucionador,$mes,$ano);
+                break;
         }
         $this->plotLastMonth($solucionador);
         $this->plotActualMonth($solucionador);
         $this->plotActualWeek($solucionador);
-        $this->plotAnnualBacklog($solucionador,$mes,$ano);
+
         return view('tickets_single.index',compact('nome_cliente'));
 
     }
@@ -502,14 +673,14 @@ class TicketsController extends AppBaseController
     {
 
         $client = new Client('http://10.30.22.55','bhfagundes','beiPhone7*');
-      
-        //Buscar os PRB'S DE PERNAMBUCO 
+
+        //Buscar os PRB'S DE PERNAMBUCO
         $red=$client->search->search('Myproject', ['limit' => 100]);
         //$red =$client->issue->all(['project_NAME' => 'FCA – Betim e Hortolândia'
        // ]);
-      
+
        $redmine= $client->issue->all(['limit' => 100]);
-       
+
        //Listando clientes no redmine
        //$redmine=$client->project->all([
        // 'limit' => 10,
@@ -647,7 +818,7 @@ class TicketsController extends AppBaseController
     }
     public function destroy($id)
     {
-        
+
         $tickets = $this->ticketsRepository->find($id);
 
         if (empty($tickets)) {
