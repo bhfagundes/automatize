@@ -112,6 +112,8 @@ class TicketsController extends AppBaseController
 
         */
     }
+
+
     public function columnChart()
     {
         $data = \Lava::DataTable();
@@ -140,6 +142,63 @@ class TicketsController extends AppBaseController
 
     }
 
+    public function plotPrb($id)
+    {
+        $client = new Client('http://10.30.22.55','bhfagundes','beiPhone7*');
+        $projeto=$client->issue->all(['project_id' => $id], ['limit' => 100]);
+        $uat=0;
+        $inprogress=0;
+        $todeploy=0;
+        $standby=0;
+        $hold=0;
+        for($i=0;$i< sizeof($projeto['issues']);$i++)
+        {
+            if($projeto['issues'][$i]['status']['name']=='UAT')
+            {
+                $uat++;
+            }
+            else if($projeto['issues'][$i]['status']['name']=='To deploy')
+            {
+                $todeploy++;
+            }
+            else if($projeto['issues'][$i]['status']['name']=='Under analysis'||$projeto['issues'][0]['status']['name']=='Internal tests')
+            {
+                $inprogress++;
+            }
+            else
+            {
+                $standby++;
+            }
+        }
+
+        $hold=$todeploy+$uat+$standby;
+
+        $lava = new Lavacharts; // See note below for Laravel
+
+        $prbStatus = $lava->DataTable();
+
+        $prbStatus->addStringColumn('PBR')
+                ->addNumberColumn('Integer')
+                ->addRow(['UAT', $uat])
+                ->addRow(['To deploy', $todeploy])
+                ->addRow(['In progress', $inprogress])
+                ->addRow(['Stand by', $standby]);
+
+                \Lava::DonutChart('PRB', $prbStatus, [
+            'title' => 'Problems Status']);
+
+        $prbStatusColumns = $lava->DataTable();
+
+        $prbStatusColumns->addStringColumn('PBR')
+                ->addNumberColumn('Integer')
+                ->addRow(['Act  ive', $inprogress])
+                ->addRow(['Hold', $hold]);
+
+                \Lava::ColumnChart('PRBColumns', $prbStatusColumns, [
+            'title' => 'Problems Status']);
+
+    }
+
     public function plotLastMonth($solucionador)
     {
         $mes = date('m')-1;
@@ -154,8 +213,8 @@ class TicketsController extends AppBaseController
                                     ->whereRaw("YEAR(cr_date)={$ano}")
                                     ->where('PRB_CODE', '!=', '')
                                     ->whereIn('CONF_ITEM',$solucionador)
-
                                     ->get();
+
                                     //dd($tickets_prb);
         $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
                                     ->whereRaw("YEAR(cr_date)={$ano}")
@@ -175,10 +234,10 @@ class TicketsController extends AppBaseController
                                     ->addRoleColumn('string', 'style')
                                     ->addRoleColumn('string', 'annotation');
         $data->addRows([
-                                     ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
-                                     ['PRB', sizeof($tickets_prb), 'orange',sizeof($tickets_prb)],
-                                     ['Gerais',   sizeof($tickets_gerais), 'red',sizeof($tickets_gerais)],
-                                     ['Em análise',   sizeof($tickets_analise), 'green',sizeof($tickets_analise)]
+                                     ['Cancelados',  sizeof($tickets_cancelados), 'gold',sizeof($tickets_cancelados)],
+                                     ['PRB', sizeof($tickets_prb), 'gold',sizeof($tickets_prb)],
+                                     ['Gerais',   sizeof($tickets_gerais), 'gold',sizeof($tickets_gerais)],
+                                     ['Em análise',   sizeof($tickets_analise), 'gold',sizeof($tickets_analise)]
                                  ]);
 
         \Lava::ColumnChart('DATA', $data, [
@@ -594,6 +653,14 @@ class TicketsController extends AppBaseController
         10 - Contagem - Click MFG Contagem-E-P
 
         */
+
+        $client = new Client('http://10.30.22.55','bhfagundes','beiPhone7*');
+        $red=$client->search->search('CNH - Contagem', ['limit' => 100]);
+        $projeto=$client->issue->all(['project_id' => $id], ['limit' => 100]);
+        $redmine= $client->issue->all(['limit' => 100]);
+        //dd($projeto);
+
+
         $mes = 9;
         $ano = 2019;
         switch ($id) {
@@ -664,7 +731,7 @@ class TicketsController extends AppBaseController
         $this->plotLastMonth($solucionador);
         $this->plotActualMonth($solucionador);
         $this->plotActualWeek($solucionador);
-
+        $this->plotPrb($id);
         return view('tickets_single.index',compact('nome_cliente'));
 
     }
@@ -680,6 +747,7 @@ class TicketsController extends AppBaseController
        // ]);
 
        $redmine= $client->issue->all(['limit' => 100]);
+        dd($redmine);
 
        //Listando clientes no redmine
        //$redmine=$client->project->all([
