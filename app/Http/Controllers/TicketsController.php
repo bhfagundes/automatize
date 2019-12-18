@@ -241,7 +241,13 @@ class TicketsController extends AppBaseController
                                  ]);
 
         \Lava::ColumnChart('DATA', $data, [
-                                         'title' => "Análise Mensal (Mês anterior)",
+                                         'title' => "TICKETS DO MÊS ANTERIOR",
+                                         'titleTextStyle' => [
+                                            'fontName' => 'Arial Black',
+                                            'color'    => '#000000',
+                                            'fontSize' => 16,
+                                            'position' => 'right'
+                                         ],
                                          'position'=> "center",
                                          'legend' => 'none',
                                          'vAxis' => [
@@ -270,7 +276,7 @@ class TicketsController extends AppBaseController
                             ->where('PRB_CODE', '!=', '')
                             ->whereIn('CONF_ITEM',$solucionador)
                             ->get();
-
+       // dd($tickets_prb);
         $tickets_gerais =  Tickets::whereRaw("MONTH(cr_date)={$mes}")
                             ->whereRaw("YEAR(cr_date)={$ano}")
                             ->whereIn('STATUS',['Encerrado','Fechado'])
@@ -291,14 +297,22 @@ class TicketsController extends AppBaseController
        ->addRoleColumn('string', 'annotation');
        $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
        $data_atual->addRows([
-        ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
-        ['PRB', sizeof($tickets_prb), 'orange', sizeof($tickets_prb)],
-        ['Gerais',   sizeof($tickets_gerais), 'red', sizeof($tickets_gerais)],
-        ['Em análise',   sizeof($tickets_analise), 'green',sizeof($tickets_analise)]
+        ['Cancelados',  sizeof($tickets_cancelados), '#9932CC',sizeof($tickets_cancelados)],
+        ['PRB', sizeof($tickets_prb), '#9932CC', sizeof($tickets_prb)],
+        ['Gerais',   sizeof($tickets_gerais), '#9932CC', sizeof($tickets_gerais)],
+        ['Em análise',   sizeof($tickets_analise), '#9932CC',sizeof($tickets_analise)]
     ]);
 
         \Lava::ColumnChart('DATAATUAL', $data_atual, [
-            'title' => "Análise Mensal (Mês atual)",
+            'title' => "TICKETS ABERTOS NO MÊS ATUAL",
+            'color' =>'#000000',
+            'font' => 'Arial',
+            'titleTextStyle' => [
+                'fontName' => 'Arial Black',
+                'color'    => '#000000',
+                'fontSize' => 16,
+                'position' => 'right'
+             ],
             'position'=> "center",
             'legend' => 'none',
             'vAxis' => [
@@ -310,6 +324,7 @@ class TicketsController extends AppBaseController
         return;
 
     }
+
     public function plotActualWeek($solucionador)
     {
          $mes = date('m');
@@ -326,6 +341,7 @@ class TicketsController extends AppBaseController
                              ->where('PRB_CODE', '!=', '')
                              ->whereIn('CONF_ITEM',$solucionador)
                              ->get();
+
          $tickets_gerais =  Tickets::whereRaw("YEARWEEK(cr_date) = YEARWEEK(NOW())-1")
                              ->whereRaw("YEAR(cr_date)={$ano}")
                              ->whereIn('STATUS',['Encerrado','Fechado'])
@@ -346,14 +362,20 @@ class TicketsController extends AppBaseController
         ->addRoleColumn('string', 'annotation');
         $data_tickets= [ "Analise", sizeof($tickets_cancelados),sizeof($tickets_prb),sizeof($tickets_gerais) ];
         $data_semana_atual->addRows([
-         ['Cancelados',  sizeof($tickets_cancelados), 'blue',sizeof($tickets_cancelados)],
-         ['PRB', sizeof($tickets_prb), 'orange',sizeof($tickets_prb)],
-         ['Gerais',   sizeof($tickets_gerais), 'red', sizeof($tickets_gerais)],
-         ['Em análise',   sizeof($tickets_analise), 'green', sizeof($tickets_analise)]
+         ['Cancelados',  sizeof($tickets_cancelados), '#FF6347',sizeof($tickets_cancelados)],
+         ['PRB', sizeof($tickets_prb), '#FF6347',sizeof($tickets_prb)],
+         ['Gerais',   sizeof($tickets_gerais), '#FF6347', sizeof($tickets_gerais)],
+         ['Em análise',   sizeof($tickets_analise), '#FF6347', sizeof($tickets_analise)]
      ]);
 
          \Lava::ColumnChart('DATASEMANAATUAL', $data_semana_atual, [
-             'title' => "Análise Semana anterior",
+             'title' => "TICKETS SEMANA",
+             'titleTextStyle' => [
+                'fontName' => 'Arial Black',
+                'color'    => '#000000',
+                'fontSize' => 16,
+                'position' => 'right'
+             ],
              'position'=> "center",
              'legend' => 'none',
              'vAxis' => [
@@ -408,14 +430,16 @@ class TicketsController extends AppBaseController
             $dados_printar[$i]['fechados']=sizeof($tickets_fechados);
             $dados_printar[$i]['backlog']=$soma;
             $dados_printar[$i]['data']=$mes."/".$ano;
-            $backlog_anual->addRow([[$dados_printar[$i]['data']], [$dados_printar[$i]['abertos'],'10'],[$dados_printar[$i]['fechados'],'9' ], $dados_printar[$i]['backlog']]);
+            $backlog_anual->addRow([[$dados_printar[$i]['data']], [$dados_printar[$i]['abertos']],[$dados_printar[$i]['fechados']], $dados_printar[$i]['backlog']]);
             $data1 =  date('d-m-Y', strtotime('+1 months',strtotime($data1)));
             $i++;
         }
+
         \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
-            'title' => 'BackLog Anual',
+            'title' => 'BACKLOG ANUAL',
             'titleTextStyle' => [
-                'color'    => 'rgb(123, 65, 89)',
+                'fontName' => 'Arial Black',
+                'color'    => '#000000',
                 'fontSize' => 12
             ],
             'legend' => [
@@ -434,6 +458,7 @@ class TicketsController extends AppBaseController
             ]
         ]);
 
+        //dd($tickets_abertos);
 
         return;
         //$abertos=;
@@ -497,8 +522,9 @@ class TicketsController extends AppBaseController
         \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
             'title' => 'BackLog Anual',
             'titleTextStyle' => [
-                'color'    => 'rgb(123, 65, 89)',
-                'fontSize' => 12
+                'fontName' => 'Arial Black',
+                'color'    => '#000000',
+                'fontSize' => 14
             ],
             'legend' => [
                 'position' => 'right'
@@ -619,13 +645,14 @@ class TicketsController extends AppBaseController
             \Lava::ComboChart('BACKLOGANUAL', $backlog_anual, [
             'title' => 'BackLog Anual',
             'titleTextStyle' => [
-                'color'    => 'rgb(123, 65, 89)',
+                'fontName' => 'Arial Black',
+                'color'    => '#000000',
                 'fontSize' => 16
             ],
             'legend' => [
                 'position' => 'in'
             ],
-            'backgroundColor' => '#000',
+            'backgroundColor' => '#FFFFFF',
 
             'seriesType' => 'bars',
             'series' => [
@@ -747,7 +774,7 @@ class TicketsController extends AppBaseController
        // ]);
 
        $redmine= $client->issue->all(['limit' => 100]);
-        dd($redmine);
+        //dd($redmine);
 
        //Listando clientes no redmine
        //$redmine=$client->project->all([
