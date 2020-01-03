@@ -493,7 +493,9 @@ class TicketsController extends AppBaseController
                 2 => ['type' => 'line',
                       'format' => 'integer',
                 ]
-            ]
+            ],
+            'height' => 450,
+            'width' => 950
         ]);
 
         //dd($tickets_abertos);
