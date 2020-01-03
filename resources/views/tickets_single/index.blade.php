@@ -6,6 +6,7 @@
 
     </section>
     <div class="content">
+        <center>
         <div class="clearfix"></div>
         <div id="stocks-div"></div>
             @columnchart('DATA', 'stocks-div')
@@ -27,7 +28,7 @@
         <br>
         <div id="PRBcolumns-div"></div>
         @columnchart('PRBColumns', 'PRBcolumns-div')
-
+            </center>
         <div class="clearfix"></div>
         <div class="box box-primary">
             <div class="box-body">
